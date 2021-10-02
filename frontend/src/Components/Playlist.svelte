@@ -36,12 +36,14 @@
     </Stack>    
     <Spacer spacing="medium" />
     <Stack orientation="horizontal">        
-        <Button class="padding" palette="light" on:click={generateSongs}>
-            Refresh 
-            <span class="material-icons">
-                refresh
-            </span>
-        </Button>
+        {#if songsChosen.length <= max_songs}
+            <Button class="padding" palette="light" on:click={generateSongs}>
+                Refresh 
+                <span class="material-icons">
+                    refresh
+                </span>
+            </Button>
+        {/if}
         <Button class="padding" palette="accent" disabled={true}>
             Add
             <span class="material-icons">
@@ -73,12 +75,15 @@
         clip-path: polygon(0 0, 100% 10%, 100% 100%, 0% 90%);
     }
     :global(.playlist-box) {
+        animation: slideMobile 2s;
         clip-path: polygon(0 0, 100% 10%, 100% 100%, 0% 90%);
     }
 
     @media (min-width: 640px) {
         :global(.playlist-box) {
+            animation: slideDesktop 2s;
             clip-path: polygon(0 0, 100% 20%, 100% 100%, 0% 80%);
+            /* clip-path: polygon(0 0, 100% 20%, 100% 100%, 0% 80%); */
         }
         :global(.playlist-box > .scroll) {
             max-height: 500px;
@@ -86,6 +91,16 @@
             padding-top: 80px;
             clip-path: polygon(0 0, 100% 20%, 100% 100%, 0% 80%);
         }
+    }
+
+    @keyframes slideDesktop {
+        from { clip-path: polygon(0 0, 100% 0%, 100% 100%, 0% 100%); }
+        to   { clip-path: polygon(0 0, 100% 20%, 100% 100%, 0% 80%); }
+    }
+
+    @keyframes slideMobile {
+        from { clip-path: polygon(0 0, 100% 0%, 100% 100%, 0% 100%); }
+        to   {clip-path: polygon(0 0, 100% 10%, 100% 100%, 0% 90%); }
     }
 </style>
 

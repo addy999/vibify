@@ -40,11 +40,11 @@
         // get all music from 10 years
         // fetch($store.BASE_URL + `my-music?token=${$store.token}&days=${2 * 365}`)
         // .then(data => data.json())
-        getSongsUntil($store.token, 2 * 365)
-        .then(songs => {
-            $store.shortTermSongs = songs;
-        })
-        .then(() => getSongsUntil($store.token, 10 * 365))
+        getSongsUntil($store.token, 10 * 365)
+        // .then(songs => {
+        //     $store.shortTermSongs = songs;
+        // })
+        // .then(() => getSongsUntil($store.token, 10 * 365))
         // .then(() => fetch($store.BASE_URL + `my-music?token=${$store.token}&days=${10 * 365}`))
         // .then(data => data.json())
         .then(songs => {
@@ -53,7 +53,7 @@
             currentStep = "group";
             // console.warn($store.songs.length, $store.shortTermSongs.length)
         })
-        .then(() => postRequest($store.BASE_URL + `find-avg-features`, $store.shortTermSongs))
+        .then(() => postRequest($store.BASE_URL + `find-avg-features`, $store.songs))
         .then(data => data.json())
         .then(data => new Promise(r => setTimeout(() => r(data), 2000)))
         .then(feats => {
@@ -121,7 +121,7 @@
                 {#if currentStep=="createPlaylists"}
                     <Spinner />
                 {:else if $store.playlists}
-                    <Text>{playlistCounter()} songs matched</Text>
+                    <Text>{ Math.round((playlistCounter() / $store.songs.length) * 100)}% songs fit the vibes</Text>
                 {/if}
             </Stack>
         </Box>
