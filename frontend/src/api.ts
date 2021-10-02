@@ -36,7 +36,7 @@ export const getSongsUntil = async (token: string, days: number) => {
     let end_time = last_time - day * days *1000;
     let offset = 0
     let reached_end = false;
-    debugger;
+    // debugger;
 
     // console.log("starting at", last_time);
     // console.log("ending at", end_time);
