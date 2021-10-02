@@ -503,5 +503,5 @@ export default writable<Store>({
             }
         ]
     }, // {}
-    BASE_URL: process.env.NODE_ENV !== 'production' ? 'http://127.0.0.1:8000/' : "https://5omhjz.deta.dev/"  // api
+    BASE_URL: window.location.href.includes('127.0.0.1') ? 'http://127.0.0.1:8000/' : "https://5omhjz.deta.dev/"  // api
 })
