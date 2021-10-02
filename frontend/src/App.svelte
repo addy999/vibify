@@ -90,7 +90,13 @@
 	}
 
 	.padding {
-		padding: 15px 25px !important;
+		padding: 15px 15px !important;
+	}
+
+	@media (min-width: 640px) {
+		.padding {
+			padding: 15px 25px !important;
+		}
 	}
 
 	h1, h2 {

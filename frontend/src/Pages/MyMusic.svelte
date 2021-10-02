@@ -15,7 +15,7 @@
     let error;
     $: currentStep = "grid";
     // @ts-ignore
-    $: !currentStep && party.confetti(document.querySelector(".browse-playlists"), {
+    $: !currentStep && Object.keys($store.playlists).length > 0 && party.confetti(document.querySelector(".browse-playlists"), {
         count: party.variation.range(30, 50),
         spread: 55
     });
@@ -37,17 +37,18 @@
 
     onMount(() => {
         // get all music from 10 years
-        fetch($store.BASE_URL + `my-music?token=${$store.token}&days=${10}`)
-        .then(data => data.json())
-        .then(songs => {
-            $store.songs = songs;
-        })
-        .then(() => fetch($store.BASE_URL + `my-music?token=${$store.token}&days=${2*365}`))
+        fetch($store.BASE_URL + `my-music?token=${$store.token}&days=${2 * 365}`)
         .then(data => data.json())
         .then(songs => {
             $store.shortTermSongs = songs;
+        })
+        .then(() => fetch($store.BASE_URL + `my-music?token=${$store.token}&days=${10 * 365}`))
+        .then(data => data.json())
+        .then(songs => {
+            $store.songs = songs;
             steps.group = true;
             currentStep = "group";
+            // console.warn($store.songs.length, $store.shortTermSongs.length)
         })
         .then(() => postRequest($store.BASE_URL + `find-avg-features`, $store.shortTermSongs))
         .then(data => data.json())
@@ -72,30 +73,6 @@
         .catch(() => error=true)
     })
 
-    // onMount(() => {
-    //     setTimeout(() => {
-    //         steps.group = true;
-    //         currentStep = "group";
-    //         $store.songs = Array(1000).fill(0);
-    //     }, 1500)
-    //     setTimeout(() => {
-    //         steps.createPlaylists = true;
-    //         currentStep = "createPlaylists";
-    //         $store.features = {
-    //             1: [],
-    //             2: [],
-    //         }
-    //     }, 3500)
-    //     setTimeout(() => {
-    //         currentStep = "";
-    //         $store.playlists = {
-    //             1: ['a', 'b', 'c'],
-    //             2: ['a', 'b']
-    //         };
-    //         // error = true;
-    //     }, 5500)
-    // })
-
 </script>
 
 
@@ -117,7 +94,7 @@
                 {#if currentStep=="grid"}
                     <Spinner />
                 {:else if $store.songs}
-                    <Text>{$store.songs.length} songs found 🥵</Text>
+                    <Text>{$store.songs.length} songs found 🤩</Text>
                 {/if}
             </Stack>
         </Box>
