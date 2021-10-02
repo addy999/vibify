@@ -4,6 +4,7 @@
     import store from "../store";
     import {Grid} from "@kahi-ui/framework";
     import { router } from "tinro";
+    import { getSongsUntil } from "../api";
 
     let steps = {
         getMusic: true,
@@ -37,13 +38,15 @@
 
     onMount(() => {
         // get all music from 10 years
-        fetch($store.BASE_URL + `my-music?token=${$store.token}&days=${2 * 365}`)
-        .then(data => data.json())
+        // fetch($store.BASE_URL + `my-music?token=${$store.token}&days=${2 * 365}`)
+        // .then(data => data.json())
+        getSongsUntil($store.token, 2 * 365)
         .then(songs => {
             $store.shortTermSongs = songs;
         })
-        .then(() => fetch($store.BASE_URL + `my-music?token=${$store.token}&days=${10 * 365}`))
-        .then(data => data.json())
+        .then(() => getSongsUntil($store.token, 10 * 365))
+        // .then(() => fetch($store.BASE_URL + `my-music?token=${$store.token}&days=${10 * 365}`))
+        // .then(data => data.json())
         .then(songs => {
             $store.songs = songs;
             steps.group = true;
