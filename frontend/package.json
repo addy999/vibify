@@ -10,7 +10,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d public"
   },
-  "homepage": "http://addy999.github.io/vibify",
+  "homepage": "http://addy999.github.io/vibify/",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
