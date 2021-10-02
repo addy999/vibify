@@ -53,6 +53,7 @@
         .then(data => data.json())
         .then(data => new Promise(r => setTimeout(() => r(data), 2000)))
         .then(feats => {
+            // @ts-ignore
             $store.features = feats;
             steps.createPlaylists = true;
             currentStep = "createPlaylists";
@@ -64,6 +65,7 @@
         .then(data => data.json())
         .then(data => new Promise(r => setTimeout(() => r(data), 3500)))
         .then(lists => {
+            // @ts-ignore
             $store.playlists = lists;
             currentStep = "";
         })
@@ -163,7 +165,7 @@
                 class="browse-playlists padding"
                 size="large" 
                 palette="affirmative"
-                disabled={!!currentStep}
+                disabled={!$store.playlists || Object.keys($store.playlists).length == 0}
                 on:click={() => router.goto("/auth/playlists")}
             >
                 Browse playlists
