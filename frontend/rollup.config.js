@@ -66,7 +66,7 @@ export default {
 			browser: true,
 			dedupe: ['svelte']
 		}),
-		commonjs(),
+		commonjs({ sourceMap: false }),
 		typescript({
 			sourceMap: !production,
 			inlineSources: !production
