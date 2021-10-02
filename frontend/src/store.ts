@@ -15,5 +15,5 @@ export default writable<Store>({
     shortTermSongs: [],
     features: null, // {}
     playlists: null, // {}
-    BASE_URL: window.location.href.includes('127.0.0.1') ? 'http://127.0.0.1:8000/' : "https://5omhjz.deta.dev/"  // api
+    BASE_URL: window.location.href.includes('127.0.0.1') ? 'http://127.0.0.1:8000/' : "https://api.vibify.me/"  // api
 })
