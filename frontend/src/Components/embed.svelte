@@ -9,7 +9,9 @@
     let iframeComponent;
     let clicked;
 
-    $: console.log(clicked)
+    const shortenString = (string) => 
+        string.length > "I Know What You Did Last".length ? string.slice(0, string.length - 3) + "..." : string;
+    
 
 </script>
 
@@ -22,8 +24,8 @@
         <Stack orientation="horizontal" class="playholder" >
             <img src={info.img} alt={`${info.name} album art`} />
             <Stack padding_left="large">
-                <Heading class="song-title" align="left" as="h4" is="strong">{info.name}</Heading>
-                <Text align="left">{info.artist}</Text>
+                <Heading class="song-title" align="left" as="h4" is="strong">{shortenString(info.name)}</Heading>
+                <Text class="song-artist" align="left">{info.artist}</Text>
             </Stack>
         </Stack>
     {/if}
@@ -65,16 +67,25 @@
     }
 
     :global(.song-title) {
-        font-size: 1em;
+        font-size: 0.95em;
         font-weight: bold!important;
+    }
+    :global(.song-artist) {
+        font-size: 0.8em;
     }
 
     @media (min-width: 640px) {
         div {
             height: 100px;
         }
-            img {
+        img {
             max-width: 100px;
+        }
+        :global(.song-title) {
+            font-size: 1em;
+        }
+        :global(.song-artist) {
+            font-size: 1em;
         }
     }
 

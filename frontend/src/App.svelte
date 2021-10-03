@@ -13,14 +13,17 @@
 	
 	let loading;
 
-	const getAuthRedirect = () => 
+	const getAuthRedirect = () => {
+		setTimeout(() => {
+			loading= true;
+		}, 100);
 		fetch($store.BASE_URL + "get-auth")
 		.then(data => data.json())
 		.then(url => {
-			loading= true;
+			// loading= true;
 			// router.goto(url.url)
 			window.location.href = url.url;
-	});
+	});}
 
 	const logo = "./Vibify-logos_white.png";
 	

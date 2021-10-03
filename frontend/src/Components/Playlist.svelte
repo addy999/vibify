@@ -30,11 +30,11 @@
     let refrehing;
 
 
-    const generateSongs = async () => {
+    const generateSongs = async (mounting = false) => {
         refrehing = true;
         songsChosen = shuffleArray($store.playlists[playlist_id]).slice(0, max_songs);
         trackInfos = await getTracksInfo($store.token, songsChosen.map(s => s.id));
-        toast.push('New songs found')
+        !mounting && toast.push('New songs found')
         setTimeout(() => refrehing = false, 500);
     };
 
@@ -48,13 +48,13 @@
         })
     }
     
-    onMount(generateSongs)
+    onMount(() => generateSongs(true))
 
 </script>
 
 <Box tabindex="0" padding_y="huge" class="playlist-box" padding_x="large" palette="dark">
     <Stack
-        spacing="medium">
+        spacing="large">
         <Heading as="h2" align="left" class="playlist-title">{playlistTitle}</Heading>
         <Heading as="h3" align="left" class="playlist-count">{`${songsChosen.length} songs`}</Heading>
     </Stack>    
