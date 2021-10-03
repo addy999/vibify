@@ -16,6 +16,7 @@
     "@rollup/plugin-node-resolve": "^11.0.0",
     "@rollup/plugin-typescript": "^8.0.0",
     "@tsconfig/svelte": "^2.0.0",
+    "@zerodevx/svelte-toast": "^0.6.1",
     "gh-pages": "^3.2.3",
     "postcss": "^7.0.38",
     "rollup": "^2.3.4",

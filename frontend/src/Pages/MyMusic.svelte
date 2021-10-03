@@ -4,7 +4,7 @@
     import store from "../store";
     import {Grid} from "@kahi-ui/framework";
     import { router } from "tinro";
-    import { getSongsUntil } from "../api";
+    import { getSongsUntil, postRequest, get_song_features, filterSongsUntilDaysAgo } from "../api";
 
     let steps = {
         getMusic: true,
@@ -27,33 +27,26 @@
         return sum;
     }, 0);
 
-    const postRequest = (url, blob) => fetch(url, {
-            method: 'POST',
-            headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(blob)
-    });
-
     onMount(() => {
         // get all music from 10 years
-        // fetch($store.BASE_URL + `my-music?token=${$store.token}&days=${2 * 365}`)
-        // .then(data => data.json())
         getSongsUntil($store.token, 10 * 365)
-        // .then(songs => {
-        //     $store.shortTermSongs = songs;
-        // })
-        // .then(() => getSongsUntil($store.token, 10 * 365))
-        // .then(() => fetch($store.BASE_URL + `my-music?token=${$store.token}&days=${10 * 365}`))
-        // .then(data => data.json())
         .then(songs => {
             $store.songs = songs;
             steps.group = true;
             currentStep = "group";
-            // console.warn($store.songs.length, $store.shortTermSongs.length)
+            return songs;
         })
-        .then(() => postRequest($store.BASE_URL + `find-avg-features`, $store.songs))
+        .then(songs => get_song_features($store.token, songs.map(s => s.id), false))
+        .then(feats => {
+            $store.songs = $store.songs.map(song => {
+                song.feats = feats[song.id];
+                return song;
+            })
+            return postRequest($store.BASE_URL + `find-avg-features`, 
+            filterSongsUntilDaysAgo($store.songs, 2 * 365) // last two years
+            // $store.songs.slice(0, Math.round($store.songs.length / 2))
+        );
+        })
         .then(data => data.json())
         .then(data => new Promise(r => setTimeout(() => r(data), 2000)))
         .then(feats => {
@@ -80,7 +73,7 @@
 
 
 <div class="center padding">
-    <h1>Analyzing your music 🎵</h1>
+    <h1 class="analyze">Analyzing your music 🎵</h1>
 
     <Spacer spacing="large" />
 
@@ -109,7 +102,7 @@
                 {#if currentStep=="group"}
                     <Spinner />
                 {:else if $store.features}
-                    <Text>{Object.keys($store.features).length} 💅🏽 vibes found</Text>
+                    <Text>Beep boop done 👩‍💻</Text>
                 {/if}
             </Stack>
         </Box>
@@ -121,7 +114,10 @@
                 {#if currentStep=="createPlaylists"}
                     <Spinner />
                 {:else if $store.playlists}
-                    <Text>{ Math.round((playlistCounter() / $store.songs.length) * 100)}% songs fit the vibes</Text>
+                    <Text>
+                        {Object.keys($store.playlists).length} 💅🏽 vibes found
+                        <!-- { Math.round((playlistCounter() / $store.songs.length) * 100)}% songs fit the vibes -->
+                    </Text>
                 {/if}
             </Stack>
         </Box>
@@ -160,6 +156,11 @@
     .fadeIn {
         animation: fadein 2s;
     }
+
+    :global(.analyze) {
+        font-size: 2em;
+    }
+
     @keyframes fadein {
         from { opacity: 0; }
         to   { opacity: 1; }

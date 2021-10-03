@@ -2,6 +2,8 @@
 
     import {Button, Spacer, Spinner, Stack, Grid, Heading, Box, Scrollable} from "@kahi-ui/framework";
     import { onMount } from "svelte";
+    import { getTracksInfo, postRequest } from "../api";
+    import { toast } from '@zerodevx/svelte-toast'
 
     import Embed from "../Components/embed.svelte";
     import store from "../store";
@@ -20,43 +22,80 @@
     }
 
     const max_songs = 25;
+    const playlistTitle = `Mix #${Object.keys($store.playlists).findIndex(i => i===playlist_id) + 1}`;
 
     let songsChosen = [];
-    const generateSongs = () => songsChosen = shuffleArray($store.playlists[playlist_id]).slice(0, max_songs);
+    let trackInfos = [];
+    let submitting;
+    let refrehing;
+
+
+    const generateSongs = async () => {
+        refrehing = true;
+        songsChosen = shuffleArray($store.playlists[playlist_id]).slice(0, max_songs);
+        trackInfos = await getTracksInfo($store.token, songsChosen.map(s => s.id));
+        toast.push('New songs found')
+        setTimeout(() => refrehing = false, 500);
+    };
+
+    const submitPlaylist = () => {
+        submitting = "loading";
+        postRequest($store.BASE_URL + `submit-playlist?token=${$store.token}&name=${playlistTitle}`, songsChosen.map(s => s.id))
+        .then(() => {
+            submitting="check";
+            setTimeout(() => submitting="", 2000);
+            toast.push('Playlist created in Spotify')
+        })
+    }
     
     onMount(generateSongs)
 
 </script>
 
-<Box padding_y="huge" class="playlist-box" padding_x="large" palette="dark">
+<Box tabindex="0" padding_y="huge" class="playlist-box" padding_x="large" palette="dark">
     <Stack
         spacing="medium">
-        <Heading as="h2" align="left" class="playlist-title">{playlist_id}</Heading>
+        <Heading as="h2" align="left" class="playlist-title">{playlistTitle}</Heading>
         <Heading as="h3" align="left" class="playlist-count">{`${songsChosen.length} songs`}</Heading>
     </Stack>    
     <Spacer spacing="medium" />
     <Stack orientation="horizontal">        
-        {#if songsChosen.length <= max_songs}
-            <Button class="padding" palette="light" on:click={generateSongs}>
-                Refresh 
-                <span class="material-icons">
-                    refresh
-                </span>
+        {#if songsChosen.length >= max_songs}
+            <Button class="padding" palette="auto" on:click={generateSongs}>
+                {#if refrehing}
+                    <Spinner size="medium" />
+                {:else}
+                    Refresh 
+                    <span class="material-icons">
+                        refresh
+                    </span>
+                {/if}
             </Button>
+            
         {/if}
-        <Button class="padding" palette="accent" disabled={true}>
-            Add
-            <span class="material-icons">
-                add
-            </span
-        ></Button>
+        <Button class="padding" palette={submitting === "check" ? "affirmative" : "accent"} on:click={submitPlaylist}>
+            {#if submitting === "loading"}
+                <Spinner size="medium" />
+            {:else if submitting === "check"}
+                <span class="material-icons">
+                    done
+                </span>
+            {:else}
+                Add
+                <span class="material-icons">
+                    add
+                </span>
+            {/if}
+        </Button>
     </Stack>
     <Spacer spacing="medium" />
     <Scrollable class="scroll">
         <Stack spacing="medium">
-            {#each songsChosen as song}
-                <Embed songId={song.id} width="" height="80"/>
-            {/each}
+            {#if trackInfos.length > 0}
+                {#each songsChosen as song, index}
+                    <Embed songId={song.id} info={trackInfos[index]} width=""/>
+                {/each}
+            {/if}
         </Stack>
     </Scrollable>
 </Box>
@@ -88,7 +127,7 @@
         :global(.playlist-box > .scroll) {
             max-height: 500px;
             padding-bottom: 80px;
-            padding-top: 80px;
+            /* padding-top: 80px; */
             clip-path: polygon(0 0, 100% 20%, 100% 100%, 0% 80%);
         }
     }

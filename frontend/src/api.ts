@@ -1,6 +1,15 @@
 const day = 3600 * 24 * 1000;
 
-const get_song_features = async (token: string, song_ids: string[], normalize: boolean): Promise<any> => {
+export const postRequest = (url, blob) => fetch(url, {
+    method: 'POST',
+    headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(blob)
+});
+
+export const get_song_features = async (token: string, song_ids: string[], normalize: boolean): Promise<any> => {
     console.log("getting details...", song_ids.length)
     // debugger;
     const features = {}
@@ -29,6 +38,18 @@ const get_song_features = async (token: string, song_ids: string[], normalize: b
     return features;
 }
 
+export const filterSongsUntilDaysAgo = (songs: any[], days: number) => {
+    let last_time = Date.now() * 1000;
+    let end_time = last_time - day * days *1000;
+
+    return songs.filter(song => song.time >= end_time);
+}
+
+const getSongsWithOffsets = (token: string, offset_start: number, n: number): Promise<any> => Promise.all(
+    [...Array(n).keys()].map(i => fetch(`https://api.spotify.com/v1/me/tracks?offset=${(offset_start + i) * 50}&limit=50`, {headers: {"Authorization": `Bearer ${token}`}})
+    .then(d => d.json())))
+    .then(respArray => respArray.reduce((all, current) => [...all, ...current.items], []));
+
 export const getSongsUntil = async (token: string, days: number) => {
     console.log("getting songs")
     let song_map = {};
@@ -36,23 +57,17 @@ export const getSongsUntil = async (token: string, days: number) => {
     let end_time = last_time - day * days *1000;
     let offset = 0
     let reached_end = false;
-    // debugger;
-
-    // console.log("starting at", last_time);
-    // console.log("ending at", end_time);
 
     while (last_time >= end_time && !reached_end) {
-        const resp = await fetch(`https://api.spotify.com/v1/me/tracks?offset=${offset * 50}&limit=50`, {headers: {"Authorization": `Bearer ${token}`}}).then(d => d.json());
-
+        const items = await getSongsWithOffsets(token, offset, 10);
         try {
-            if (resp.items.length === 0) reached_end = true;
+            if (items.length === 0) reached_end = true;
             
-            resp.items.map(song => {
+            items.map(song => {
 
                 if (reached_end) return;
 
                 last_time = Date.parse(song.added_at) * 1000
-                // console.log("last song", last_time)
 
                 if (song.track.id in song_map) {
                     reached_end = true
@@ -75,19 +90,31 @@ export const getSongsUntil = async (token: string, days: number) => {
             reached_end = true;
         }
 
-        offset += 1;
+        offset += 10;
     }
+
+    return Object.values(song_map)
 
     //  add features
 
-    const feats = await get_song_features(token, Object.keys(song_map), false)
-    const songs = []
-    Object.keys(feats).map(s_id => {
-        let s = song_map[s_id]
-        s.feats = feats[s_id]
-        songs.push(s)
-    });
+    // const feats = await get_song_features(token, Object.keys(song_map), false)
+    // const songs = []
+    // Object.keys(feats).map(s_id => {
+    //     let s = song_map[s_id]
+    //     s.feats = feats[s_id]
+    //     songs.push(s)
+    // });
         
-    console.log("found", songs.length)
-    return songs
+    // console.log("found", songs.length)
+    // return songs
 }
+
+export const getTracksInfo = (token: string, ids: string[]): Promise<any> => 
+    fetch(`https://api.spotify.com/v1/tracks?ids=${ids.join(",")}`, {headers: {"Authorization": `Bearer ${token}`}})
+    .then(d => d.json())
+    .then(data => data.tracks.map(track => ({
+        name: track.name,
+        artist: track.artists[0].name,
+        img: track.album.images[1].url
+    })))
+
