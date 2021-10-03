@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Route, router } from 'tinro'; 
 	import "@kahi-ui/framework/dist/kahi-ui.framework.css";
+	import { SvelteToast } from '@zerodevx/svelte-toast';
 
 	import MyMusic from "./Pages/MyMusic.svelte";
 	import Transition from './Transition.svelte';
@@ -20,6 +21,8 @@
 			// router.goto(url.url)
 			window.location.href = url.url;
 	});
+
+	const logo = "./Vibify-logos_white.png";
 	
 </script>
 
@@ -28,9 +31,10 @@
 		<Stack class="center" padding="medium">
 			<!-- <img alt="A visual breakdown of playlists" src="./Group 1.png" /> -->
 			<!-- <Box> -->
-				<Heading as="h1" class="headline" variation="headline">Vibify</Heading>
+				<!-- <Heading as="h1" class="headline" variation="headline">Vibify</Heading> -->
+				<img src={logo} alt="Logo"/>
 				<Spacer spacing="large" />
-				<Heading is="h2">Find hidden playlists within your music</Heading>
+				<Heading is="h2">Find hidden playlists within your music using your listening history</Heading>
 				<Spacer  spacing="large"/>
 				<Button filled on:click={getAuthRedirect} class="padding" size="huge" palette="affirmative">
 					{#if !loading}
@@ -55,6 +59,7 @@
 	<Route fallback redirect="/">
 	</Route>
 </Transition>	
+<SvelteToast />
 
 <style global>
 	body {
