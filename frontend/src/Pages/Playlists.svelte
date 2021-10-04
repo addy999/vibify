@@ -3,8 +3,11 @@
     import {Button, Spacer, Spinner, Stack, Grid, Heading, Box, Scrollable} from "@kahi-ui/framework";
     import store from "../store";
     import Playlist from "../Components/Playlist.svelte";
+    import mixpanel from 'mixpanel-browser';
 
     const min_playlist_size = 5;
+
+    mixpanel.track("Browsed playlists");
 
 </script>
 

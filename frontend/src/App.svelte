@@ -2,6 +2,7 @@
 	import { Route, router } from 'tinro'; 
 	import "@kahi-ui/framework/dist/kahi-ui.framework.css";
 	import { SvelteToast } from '@zerodevx/svelte-toast';
+	import mixpanel from 'mixpanel-browser';
 
 	import MyMusic from "./Pages/MyMusic.svelte";
 	import Transition from './Transition.svelte';
@@ -26,6 +27,7 @@
 	});}
 
 	const logo = "./Vibify-logos_white.png";
+	mixpanel.init('a925c935d82ff2db81f3416c99ba0a36', {debug: false, ignore_dnt: true}); 
 	
 </script>
 

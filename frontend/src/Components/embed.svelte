@@ -1,6 +1,7 @@
 <script>
     import { onMount } from "svelte";
     import {Button, Spacer, Spinner, Stack, Grid, Text, Heading, Box, Scrollable} from "@kahi-ui/framework";
+    import mixpanel from 'mixpanel-browser';
 
     export let songId;
     export let info; // name, artist, img
@@ -8,6 +9,8 @@
 
     let iframeComponent;
     let clicked;
+    
+    $: clicked && mixpanel.track("Song embed clicked")
 
     const shortenString = (string) => 
         string.length > "I Know What You Did Last".length ? string.slice(0, string.length - 3) + "..." : string;

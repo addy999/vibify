@@ -5,6 +5,7 @@
     import {Grid} from "@kahi-ui/framework";
     import { router } from "tinro";
     import { getSongsUntil, postRequest, get_song_features, filterSongsUntilDaysAgo } from "../api";
+    import mixpanel from 'mixpanel-browser';
 
     let steps = {
         getMusic: true,
@@ -28,6 +29,7 @@
     }, 0);
 
     onMount(() => {
+        mixpanel.track("Logged in");
         // get all music from 10 years
         getSongsUntil($store.token, 10 * 365)
         .then(songs => {

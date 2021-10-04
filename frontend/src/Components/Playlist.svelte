@@ -4,6 +4,7 @@
     import { onMount } from "svelte";
     import { getTracksInfo, postRequest } from "../api";
     import { toast } from '@zerodevx/svelte-toast'
+    import mixpanel from 'mixpanel-browser';
 
     import Embed from "../Components/embed.svelte";
     import store from "../store";
@@ -40,6 +41,7 @@
 
     const submitPlaylist = () => {
         submitting = "loading";
+        mixpanel.track("Added playlist")
         postRequest($store.BASE_URL + `submit-playlist?token=${$store.token}&name=${playlistTitle}`, songsChosen.map(s => s.id))
         .then(() => {
             submitting="check";
