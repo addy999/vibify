@@ -113,7 +113,7 @@
         max-height: 350px;
         padding-bottom: 40px;
         padding-top: 40px;
-        clip-path: polygon(0 0, 100% 10%, 100% 100%, 0% 90%);
+        clip-path: polygon(0 0, 100% 10%, 100% 100%, 0% 85%);
     }
     :global(.playlist-box) {
         animation: slideMobile 2s;
@@ -130,7 +130,7 @@
             max-height: 500px;
             padding-bottom: 80px;
             /* padding-top: 80px; */
-            clip-path: polygon(0 0, 100% 20%, 100% 100%, 0% 80%);
+            clip-path: polygon(0 0, 100% 20%, 100% 100%, 0% 70%);
         }
     }
 
