@@ -46,11 +46,18 @@
             })
             return postRequest($store.BASE_URL + `find-avg-features`, 
             filterSongsUntilDaysAgo($store.songs, 2 * 365) // last two years
-            // $store.songs.slice(0, Math.round($store.songs.length / 2))
         );
         })
         .then(data => data.json())
-        .then(data => new Promise(r => setTimeout(() => r(data), 2000)))
+        .then(feats => {
+            if (feats.length > 0) return new Promise(r => setTimeout(() => r(feats), 2000));
+            else {
+                // increase range to ALL songs and larger window to a week
+                return postRequest($store.BASE_URL + `find-avg-features?max_diff=${7 * 24 * 3600}`, 
+                $store.songs).then(d => d.json()) // last two years
+            }
+
+        })
         .then(feats => {
             // @ts-ignore
             $store.features = feats;
