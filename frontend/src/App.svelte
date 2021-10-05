@@ -37,7 +37,7 @@
 			<!-- <img alt="A visual breakdown of playlists" src="./Group 1.png" /> -->
 			<!-- <Box> -->
 				<!-- <Heading as="h1" class="headline" variation="headline">Vibify</Heading> -->
-				<img src={logo} alt="Logo"/>
+				<img id="logo" src={logo} alt="Logo"/>
 				<Spacer spacing="large" />
 				<Heading is="h2">Find hidden playlists within your music using your listening history</Heading>
 				<Spacer  spacing="large"/>
@@ -118,6 +118,11 @@
 		font-size: 6em !important;
 		letter-spacing: 7px;
 		/* font-style: italic; */
+	}
+
+	#logo {
+		margin: auto;
+    	max-width: 90%;
 	}
 
 </style>

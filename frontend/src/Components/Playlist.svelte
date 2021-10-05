@@ -63,7 +63,7 @@
     <Spacer spacing="medium" />
     <Stack orientation="horizontal">        
         {#if songsChosen.length >= max_songs}
-            <Button class="padding" palette="auto" on:click={generateSongs}>
+            <Button class="padding" palette="auto" on:click={() => generateSongs()}>
                 {#if refrehing}
                     <Spinner size="medium" />
                 {:else}
