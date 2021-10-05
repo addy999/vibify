@@ -2,9 +2,16 @@
 
 *Find hidden playlists within your music using your listening history*
 
-Written in Svelte. Deployed on [Render](render.com). Each commit on the main branch pushes to Production.
+Written in Svelte. Deployed on [Render](render.com). Deployment is done by the author after local testing.
 
 If you have a feature or bug fix, submit a PR!
+
+## UI
+The amazing [Kahi UI](https://kahi-ui.nbn.dev/) svelte library was used to provide rapid development.
+
+## Tracking
+
+[Mix Panel](mixpanel.com) is used to track usage in the app - no user data is stored. This is similar to Google Analytics but wanted to try a different service out this time!
 
 ## Get started
 
