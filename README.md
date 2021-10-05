@@ -1,6 +1,10 @@
 # Vibify
 
-*Find hidden playlists within your music using your listening history*
+<p align="center" width="100%">
+    <img src="./public/Vibify-logos.jpeg" style="max-width: 200px;margin:auto">
+</p>
+
+## Find hidden playlists within your music using your listening history
 
 Written in Svelte. Deployed on [Render](render.com). Deployment is done by the author after local testing.
 
