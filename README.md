@@ -1,7 +1,7 @@
 # Vibify
 
 <p align="center" width="100%">
-    <img src="./public/Vibify-logos.jpeg" style="max-width: 200px;margin:auto">
+    <img src="./public/Vibify-logos.jpeg" width="200">
 </p>
 
 ## Find hidden playlists within your music using your listening history
