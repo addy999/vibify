@@ -4,7 +4,7 @@
     import store from "../store";
     import {Grid} from "@kahi-ui/framework";
     import { router } from "tinro";
-    import { getSongsUntil, postRequest, get_song_features, filterSongsUntilDaysAgo } from "../api";
+    import { getSongsUntil, postRequest, get_song_features, filterSongsUntilDaysAgo, getTopTracks } from "../api";
     import mixpanel from 'mixpanel-browser';
 
     let steps = {
@@ -21,6 +21,8 @@
         count: party.variation.range(30, 50),
         spread: 55
     });
+
+    console.log("top tacks", {func: () => getTopTracks($store.token, 20)})
 
     const playlistCounter = () => Object.values($store.playlists)
     .reduce((sum: number, current: string[]) => {
@@ -40,17 +42,24 @@
         })
         .then(songs => get_song_features($store.token, songs.map(s => s.id), false))
         .then(feats => {
+            // append features onto song
             $store.songs = $store.songs.map(song => {
                 song.feats = feats[song.id];
                 return song;
             })
             return postRequest($store.BASE_URL + `find-avg-features`, 
             filterSongsUntilDaysAgo($store.songs, 2 * 365) // last two years
-            // $store.songs.slice(0, Math.round($store.songs.length / 2))
-        );
+        ).then(data => data.json());
         })
-        .then(data => data.json())
-        .then(data => new Promise(r => setTimeout(() => r(data), 2000)))
+        .then(feats => {
+            if (feats.length > 0) return new Promise(r => setTimeout(() => r(data), 2000)) // emulate "stuff is happening"
+            else {
+                // song added history didn't work, let's get top tracks instead
+                const topSongs = []
+                
+                return get_song_features($store.token, topSongs.map(s => s.id), false)
+            }
+        }) 
         .then(feats => {
             // @ts-ignore
             $store.features = feats;
@@ -62,7 +71,7 @@
             centers: $store.features
         }))
         .then(data => data.json())
-        .then(data => new Promise(r => setTimeout(() => r(data), 3500)))
+        .then(data => new Promise(r => setTimeout(() => r(data), 3500))) // emulate "stuff is happening"
         .then(lists => {
             // @ts-ignore
             $store.playlists = lists;
