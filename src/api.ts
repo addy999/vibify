@@ -1,107 +1,135 @@
 const day = 3600 * 24 * 1000;
 
-export const postRequest = (url, blob) => fetch(url, {
-    method: 'POST',
+export const postRequest = (url, blob) =>
+  fetch(url, {
+    method: "POST",
     headers: {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json'
+      Accept: "application/json",
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify(blob)
-});
+    body: JSON.stringify(blob),
+  });
 
-export const get_song_features = async (token: string, song_ids: string[], normalize: boolean): Promise<any> => {
-    console.log("getting details...", song_ids.length)
-    // debugger;
-    const features = {}
-    const songs_to_get = song_ids.length;
+export const get_song_features = async (
+  token: string,
+  song_ids: string[],
+  normalize: boolean
+): Promise<any> => {
+  console.log("getting details...", song_ids.length);
+  // debugger;
+  const features = {};
+  const songs_to_get = song_ids.length;
 
-    for (let i=0; i < (songs_to_get / 100) + 1; i++) {
-        let feats = await fetch(
-            `https://api.spotify.com/v1/audio-features?ids=${song_ids.slice(i * 100, i * 100 + 100).join(",")}`,
-            {headers: {"Authorization": `Bearer ${token}`}},
-        ).then(d => d.json());
+  for (let i = 0; i < songs_to_get / 100 + 1; i++) {
+    let feats = await fetch(
+      `https://api.spotify.com/v1/audio-features?ids=${song_ids
+        .slice(i * 100, i * 100 + 100)
+        .join(",")}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    ).then((d) => d.json());
 
-        feats["audio_features"].map((_, j) => {
-            if (_) {
-                features[song_ids[i * 100 + j]] = [
-                    _.danceability,
-                    _.energy,
-                    _.liveness,
-                    _.valence,
-                    _.tempo
-                ]
-            }
-        })
-            
-    }
+    feats["audio_features"].map((_, j) => {
+      if (_) {
+        features[song_ids[i * 100 + j]] = [
+          _.danceability,
+          _.energy,
+          _.liveness,
+          _.valence,
+          _.tempo,
+        ];
+      }
+    });
+  }
 
-    return features;
-}
+  return features;
+};
 
 export const filterSongsUntilDaysAgo = (songs: any[], days: number) => {
-    let last_time = Date.now() * 1000;
-    let end_time = last_time - day * days *1000;
+  let last_time = Date.now() * 1000;
+  let end_time = last_time - day * days * 1000;
 
-    return songs.filter(song => song.time >= end_time);
-}
+  return songs.filter((song) => song.time >= end_time);
+};
 
-const getSongsWithOffsets = (token: string, offset_start: number, n: number): Promise<any> => Promise.all(
-    [...Array(n).keys()].map(i => fetch(`https://api.spotify.com/v1/me/tracks?offset=${(offset_start + i) * 50}&limit=50`, {headers: {"Authorization": `Bearer ${token}`}})
-    .then(d => d.json())))
-    .then(respArray => respArray.reduce((all, current) => [...all, ...current.items], []));
+const getSongsWithOffsets = (
+  token: string,
+  offset_start: number,
+  n: number
+): Promise<any> =>
+  Promise.all(
+    [...Array(n).keys()].map((i) =>
+      fetch(
+        `https://api.spotify.com/v1/me/tracks?offset=${
+          (offset_start + i) * 50
+        }&limit=50`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      ).then((d) => d.json())
+    )
+  ).then((respArray) =>
+    respArray.reduce((all, current) => [...all, ...current.items], [])
+  );
 
 export const getSongsUntil = async (token: string, days: number) => {
-    console.log("getting songs")
-    let song_map = {};
-    let last_time = Date.now() * 1000;
-    let end_time = last_time - day * days *1000;
-    let offset = 0
-    let reached_end = false;
+  console.log("getting songs");
+  let song_map = {};
+  let last_time = Date.now() * 1000;
+  let end_time = last_time - day * days * 1000;
+  let offset = 0;
+  let reached_end = false;
 
-    while (last_time >= end_time && !reached_end) {
-        const items = await getSongsWithOffsets(token, offset, 10);
-        try {
-            if (items.length === 0) reached_end = true;
-            
-            items.map(song => {
+  while (last_time >= end_time && !reached_end) {
+    const items = await getSongsWithOffsets(token, offset, 10);
+    try {
+      if (items.length === 0) reached_end = true;
 
-                if (reached_end) return;
+      items.map((song) => {
+        if (reached_end) return;
 
-                last_time = Date.parse(song.added_at) * 1000
+        last_time = Date.parse(song.added_at) * 1000;
 
-                if (song.track.id in song_map) {
-                    reached_end = true
-                }
-
-                song_map[song.track.id] = {
-                    id: song["track"]["id"],
-                    name: song["track"]["name"],
-                    artist: song["track"]["artists"][0]["name"],
-                    time: last_time,
-                    feats: []
-                }
-                
-            })
-
-                
-        }
-        catch(err) {
-            console.warn(err)
-            reached_end = true;
+        if (song.track.id in song_map) {
+          reached_end = true;
         }
 
-        offset += 10;
+        song_map[song.track.id] = {
+          id: song["track"]["id"],
+          name: song["track"]["name"],
+          artist: song["track"]["artists"][0]["name"],
+          time: last_time,
+          feats: [],
+        };
+      });
+    } catch (err) {
+      console.warn(err);
+      reached_end = true;
     }
+    offset += 10;
+  }
 
-    return Object.values(song_map);
-}
+  return Object.values(song_map);
+};
 
-export const getTracksInfo = (token: string, ids: string[]): Promise<any> => 
-    fetch(`https://api.spotify.com/v1/tracks?ids=${ids.join(",")}`, {headers: {"Authorization": `Bearer ${token}`}})
-    .then(d => d.json())
-    .then(data => data.tracks.map(track => ({
+export const getTopTracks = async (
+  token: string,
+  max_amount = 20
+): Promise<any> => {
+  const songs = await fetch(
+    `https://api.spotify.com/v1/me/top/tracks?limit=${max_amount}&time_range=long_term`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  ).then((d) => d.json());
+
+  return songs.items.map((song) => song.id);
+};
+
+export const getTracksInfo = (token: string, ids: string[]): Promise<any> =>
+  fetch(`https://api.spotify.com/v1/tracks?ids=${ids.join(",")}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then((d) => d.json())
+    .then((data) =>
+      data.tracks.map((track) => ({
         name: track.name,
         artist: track.artists[0].name,
-        img: track.album.images[1].url
-    })))
-
+        img: track.album.images[1].url,
+      }))
+    );
