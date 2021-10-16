@@ -49,17 +49,18 @@
             })
             return postRequest($store.BASE_URL + `find-avg-features`, 
             filterSongsUntilDaysAgo($store.songs, 2 * 365) // last two years
-        ).then(data => data.json());
+        );
         })
+        .then(data => data.json())
         .then(feats => {
-            if (feats.length > 0) return new Promise(r => setTimeout(() => r(data), 2000)) // emulate "stuff is happening"
+            if (feats.length > 0) return new Promise(r => setTimeout(() => r(feats), 2000));
             else {
-                // song added history didn't work, let's get top tracks instead
-                const topSongs = []
-                
-                return get_song_features($store.token, topSongs.map(s => s.id), false)
+                // increase range to ALL songs and larger window to a week
+                return postRequest($store.BASE_URL + `find-avg-features?max_diff=${7 * 24 * 3600}`, 
+                $store.songs).then(d => d.json()) // last two years
             }
-        }) 
+
+        })
         .then(feats => {
             // @ts-ignore
             $store.features = feats;

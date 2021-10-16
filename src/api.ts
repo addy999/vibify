@@ -103,7 +103,6 @@ export const getSongsUntil = async (token: string, days: number) => {
       console.warn(err);
       reached_end = true;
     }
-
     offset += 10;
   }
 
