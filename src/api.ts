@@ -93,20 +93,7 @@ export const getSongsUntil = async (token: string, days: number) => {
         offset += 10;
     }
 
-    return Object.values(song_map)
-
-    //  add features
-
-    // const feats = await get_song_features(token, Object.keys(song_map), false)
-    // const songs = []
-    // Object.keys(feats).map(s_id => {
-    //     let s = song_map[s_id]
-    //     s.feats = feats[s_id]
-    //     songs.push(s)
-    // });
-        
-    // console.log("found", songs.length)
-    // return songs
+    return Object.values(song_map);
 }
 
 export const getTracksInfo = (token: string, ids: string[]): Promise<any> => 
