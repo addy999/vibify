@@ -3,7 +3,7 @@ import {
   postRequest,
   get_song_features,
   getTopTracks,
-  batchCreatePlaylists
+  batchCreatePlaylists,
 } from "./api";
 
 import { BASE_URL } from "./store";
@@ -50,19 +50,19 @@ const baseSequence = ({ cb, token }: SequenceProps) =>
 
 const historySequence = ({ cb, token, songs }: SequenceProps) =>
   postRequest(BASE_URL + `find-avg-features`, songs)
-    .then(feats => {
-      delayedCall(cb, Events.featuresAdded, feats, 2500); 
+    .then((feats) => {
+      delayedCall(cb, Events.featuresAdded, feats, 2500);
       // step2 done, step3 start
       return postRequest(BASE_URL + `create-playlists`, {
         songs,
         centers: feats,
-      })
+      });
       // return await batchCreatePlaylists(songs, feats);
     })
     .then((lists) => {
       delayedCall(cb, Events.playlistsCreated, lists, 3500);
       //step3 done
-      console.log({ lists })
+      console.log({ lists });
       return lists;
     });
 
@@ -79,7 +79,6 @@ const topSequence = ({ cb, token, songs }: SequenceProps) =>
         centers: feats,
       });
     })
-    // .then(feats => new Promise((r) => setTimeout(() => r(feats), 1500)))
     .then((lists) => {
       cb(Events.playlistsCreated, lists); // step3 done
       return lists;
