@@ -1,5 +1,5 @@
 import { BASE_URL } from "./store";
-import { arrayChunks, mergeDeep} from "./utils";
+import { arrayChunks, mergeDeep } from "./utils";
 
 const day = 3600 * 24 * 1000;
 
@@ -11,8 +11,7 @@ export const postRequest = (url, blob) =>
       "Content-Type": "application/json",
     },
     body: JSON.stringify(blob),
-  })
-  .then((data) => data.json());
+  }).then((data) => data.json());
 
 export const get_song_features = async (
   token: string,
@@ -76,14 +75,17 @@ const getSongsWithOffsets = (
 export const batchCreatePlaylists = async (songs, centers) => {
   const chunks_of_songs = arrayChunks(songs, 100);
   return Promise.all([
-    chunks_of_songs.map(chunk => postRequest(BASE_URL + `create-playlists`, {
-      songs: chunk,
-      centers,
-    }))
-  ])
-  .then(respArray => respArray.reduce((all, current) => mergeDeep(all, current), {}))
+    chunks_of_songs.map((chunk) =>
+      postRequest(BASE_URL + `create-playlists`, {
+        songs: chunk,
+        centers,
+      })
+    ),
+  ]).then((respArray) =>
+    respArray.reduce((all, current) => mergeDeep(all, current), {})
+  );
 };
-  
+
 export const getSongsUntil = async (token: string, days: number) => {
   console.log("getting songs");
   let song_map = {};

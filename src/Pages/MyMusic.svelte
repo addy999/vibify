@@ -49,7 +49,7 @@
             // @ts-ignore
             count: party.variation.range(30, 50),
             spread: 55,
-        });
+          });
     }
   };
   let error;
