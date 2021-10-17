@@ -8,7 +8,8 @@ export const postRequest = (url, blob) =>
       "Content-Type": "application/json",
     },
     body: JSON.stringify(blob),
-  });
+  })
+  .then((data) => data.json());
 
 export const get_song_features = async (
   token: string,
