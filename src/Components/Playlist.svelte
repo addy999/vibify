@@ -7,7 +7,7 @@
     import mixpanel from 'mixpanel-browser';
 
     import Embed from "../Components/embed.svelte";
-    import store from "../store";
+    import store, { BASE_URL} from "../store";
 
     export let playlist_id: string;
 
@@ -23,7 +23,7 @@
     }
 
     const max_songs = 25;
-    const playlistTitle = `Mix #${Object.keys($store.playlists).findIndex(i => i===playlist_id) + 1}`;
+    const playlistTitle = `Mix-${Object.keys($store.playlists).findIndex(i => i===playlist_id) + 1}`;
 
     let songsChosen = [];
     let trackInfos = [];
@@ -42,7 +42,7 @@
     const submitPlaylist = () => {
         submitting = "loading";
         mixpanel.track("Added playlist")
-        postRequest($store.BASE_URL + `submit-playlist?token=${$store.token}&name=${playlistTitle}`, songsChosen.map(s => s.id))
+        postRequest(BASE_URL + `submit-playlist?token=${$store.token}&name=${playlistTitle}`, songsChosen.map(s => s.id))
         .then(() => {
             submitting="check";
             setTimeout(() => submitting="", 2000);
