@@ -73,20 +73,20 @@ const topSequence = ({ cb, token, songs }: SequenceProps) =>
       feats: await get_song_features(token, topIds, false),
     }))
     .then(({ songs, feats }) => {
-      cb(Events.featuresAdded, feats); // step2 done, step3 start
-      return postRequest(BASE_URL + `create-playlists`, {
+      delayedCall(cb, Events.featuresAdded, feats, 2500); // step2 done, step3 start
+      return postRequest(BASE_URL + `create-playlists?pick_unique=true`, {
         songs: songs,
-        centers: feats,
+        centers: Object.values(feats),
       });
     })
     .then((lists) => {
-      cb(Events.playlistsCreated, lists); // step3 done
+      delayedCall(cb, Events.playlistsCreated, lists, 3500); // step3 done
       return lists;
     });
 
 export const beepBoopBeep = async ({ cb, token }: SequenceProps) => {
   const songs = await baseSequence({ cb, token });
-  return songs.length > 1000
+  return songs.length > 2000
     ? historySequence({ cb, token, songs })
     : topSequence({ cb, token, songs });
 };

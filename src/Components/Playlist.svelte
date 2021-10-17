@@ -22,8 +22,9 @@
         return array;
     }
 
-    const max_songs = 25;
+    let max_songs = 15 + Math.floor(Math.random() * 20); // 15 - 35 songs 
     const playlistTitle = `Mix-${Object.keys($store.playlists).findIndex(i => i===playlist_id) + 1}`;
+    const style = `background-color: rgba(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255},0.3);`;
 
     let songsChosen = [];
     let trackInfos = [];
@@ -33,8 +34,10 @@
 
     const generateSongs = async (mounting = false) => {
         refrehing = true;
-        songsChosen = shuffleArray($store.playlists[playlist_id]).slice(0, max_songs);
-        trackInfos = await getTracksInfo($store.token, songsChosen.map(s => s.id));
+        max_songs = 15 + Math.floor(Math.random() * 20);
+        let tempSongsChosen = shuffleArray($store.playlists[playlist_id]).slice(0, max_songs);
+        trackInfos = await getTracksInfo($store.token, tempSongsChosen.map(s => s.id));
+        songsChosen = tempSongsChosen; // assing this var eperatley because it will queue the UI being re-rendered
         !mounting && toast.push('New songs found')
         setTimeout(() => refrehing = false, 500);
     };
@@ -54,7 +57,7 @@
 
 </script>
 
-<Box tabindex="0" padding_y="huge" class="playlist-box" padding_x="large" palette="dark">
+<Box tabindex="0" padding_y="huge" class="playlist-box" padding_x="large" palette="dark" {style}>
     <Stack
         spacing="large">
         <Heading as="h2" align="left" class="playlist-title">{playlistTitle}</Heading>
