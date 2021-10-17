@@ -8,7 +8,7 @@
 	import Transition from './Transition.svelte';
 	import AuthGuard from "./AuthGuard.svelte";
 	import Playlists from "./Pages/Playlists.svelte";
-	import store from "./store";
+	import store, { BASE_URL } from "./store";
 
 	import {Button, Spacer, Spinner, Stack, Heading} from "@kahi-ui/framework";
 	
@@ -18,7 +18,7 @@
 		setTimeout(() => {
 			loading= true;
 		}, 100);
-		fetch($store.BASE_URL + "get-auth")
+		fetch(BASE_URL + "get-auth")
 		.then(data => data.json())
 		.then(url => {
 			// loading= true;
@@ -103,9 +103,17 @@
 		padding: 15px 15px !important;
 	}
 
+	#logo {
+		margin: auto;
+    	max-width: 90%;
+	}
+
 	@media (min-width: 640px) {
 		.padding {
 			padding: 15px 25px !important;
+		}
+		#logo {
+			margin-bottom: -15vh;
 		}
 	}
 
@@ -118,11 +126,6 @@
 		font-size: 6em !important;
 		letter-spacing: 7px;
 		/* font-style: italic; */
-	}
-
-	#logo {
-		margin: auto;
-    	max-width: 90%;
 	}
 
 </style>
