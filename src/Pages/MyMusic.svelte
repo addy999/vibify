@@ -13,100 +13,54 @@
   import store from "../store";
   import { Grid } from "@kahi-ui/framework";
   import { router } from "tinro";
-  import {
-    getSongsUntil,
-    postRequest,
-    get_song_features,
-    filterSongsUntilDaysAgo,
-    getTopTracks,
-  } from "../api";
+  import { beepBoopBeep, Events } from "../algo";
   import mixpanel from "mixpanel-browser";
 
-  let steps = {
-    getMusic: true,
-    group: false,
-    createPlaylists: false,
+  // config
+  const primaryColor = "light";
+
+  // state
+  const stepHistory = {
+    songsAdded: false,
+    featuresAdded: false,
+    playlistsCreated: false,
   };
-
-  let primaryColor = "light";
+  const eventCallback = (event, arg) => {
+    switch (event) {
+      case Events.songsAdded:
+        stepHistory.songsAdded = true;
+        $store.songs = arg;
+        currentStep = 2;
+        break;
+      case Events.featuresAdded:
+        console.log("featuresAdded");
+        stepHistory.featuresAdded = true;
+        $store.features = arg;
+        currentStep = 3;
+        break;
+      case Events.playlistsCreated:
+        console.log("playlistsCreated");
+        stepHistory.playlistsCreated = true;
+        $store.playlists = arg;
+        currentStep = 0;
+        Object.keys($store.playlists).length > 0 &&
+          // @ts-ignore
+          party.confetti(document.querySelector(".browse-playlists"), {
+            // @ts-ignore
+            count: party.variation.range(30, 50),
+            spread: 55,
+        });
+    }
+  };
   let error;
-  $: currentStep = "grid";
-  // @ts-ignore
-  $: !currentStep &&
-    Object.keys($store.playlists).length > 0 &&
-    party.confetti(document.querySelector(".browse-playlists"), {
-      count: party.variation.range(30, 50),
-      spread: 55,
-    });
-
-  console.log("top tacks", { func: () => getTopTracks($store.token, 20) });
-
-  const playlistCounter = () =>
-    Object.values($store.playlists).reduce((sum: number, current: string[]) => {
-      sum += current.length;
-      return sum;
-    }, 0);
+  let currentStep = 1;
 
   onMount(() => {
     mixpanel.track("Logged in");
-    // get all music from 10 years
-    getSongsUntil($store.token, 10 * 365)
-      .then((songs) => {
-        $store.songs = songs;
-        steps.group = true;
-        currentStep = "group";
-        return songs;
-      })
-      .then((songs) =>
-        get_song_features(
-          $store.token,
-          songs.map((s) => s.id),
-          false
-        )
-      )
-      .then((feats) => {
-        // append features onto song
-        $store.songs = $store.songs.map((song) => {
-          song.feats = feats[song.id];
-          return song;
-        });
-        return postRequest(
-          $store.BASE_URL + `find-avg-features`,
-          filterSongsUntilDaysAgo($store.songs, 2 * 365) // last two years
-        );
-      })
-      .then((data) => data.json())
-      .then((feats) => {
-        if (feats.length > 0)
-          return new Promise((r) => setTimeout(() => r(feats), 2000));
-        else {
-          // increase range to ALL songs and larger window to a week
-          return postRequest(
-            $store.BASE_URL + `find-avg-features?max_diff=${7 * 24 * 3600}`,
-            $store.songs
-          ).then((d) => d.json()); // last two years
-        }
-      })
-      .then((feats) => {
-        // @ts-ignore
-        $store.features = feats;
-        steps.createPlaylists = true;
-        currentStep = "createPlaylists";
-      })
-      .then(() =>
-        postRequest($store.BASE_URL + `create-playlists`, {
-          songs: $store.songs,
-          centers: $store.features,
-        })
-      )
-      .then((data) => data.json())
-      .then((data) => new Promise((r) => setTimeout(() => r(data), 3500))) // emulate "stuff is happening"
-      .then((lists) => {
-        // @ts-ignore
-        $store.playlists = lists;
-        currentStep = "";
-      })
-      .catch(() => (error = true));
+    beepBoopBeep({
+      cb: eventCallback,
+      token: $store.token,
+    }).catch(() => (error = true));
   });
 </script>
 
@@ -134,7 +88,7 @@
       <Stack alignment="center">
         <Heading is="h3">Downloading your music</Heading>
         <Spacer spacing="large" />
-        {#if currentStep == "grid"}
+        {#if currentStep == 1}
           <Spinner />
         {:else if $store.songs}
           <Text>{$store.songs.length} songs found 🤩</Text>
@@ -145,13 +99,13 @@
     <Box
       shape="rounded"
       class="fadeIn progressCard"
-      palette={steps.group ? primaryColor : "dark"}
+      palette={stepHistory.songsAdded ? primaryColor : "dark"}
       padding="large"
     >
       <Stack alignment="center">
         <Heading is="h3" palette="dark">Analyzing each song</Heading>
         <Spacer spacing="large" />
-        {#if currentStep == "group"}
+        {#if currentStep == 2}
           <Spinner />
         {:else if $store.features}
           <Text>Beep boop done 👩‍💻</Text>
@@ -162,18 +116,17 @@
     <Box
       shape="rounded"
       class="fadeIn progressCard"
-      palette={steps.createPlaylists ? primaryColor : "dark"}
+      palette={stepHistory.playlistsCreated ? primaryColor : "dark"}
       padding="large"
     >
       <Stack alignment="center">
         <Heading is="h3" palette="dark">Matching music with vibes</Heading>
         <Spacer spacing="large" />
-        {#if currentStep == "createPlaylists"}
+        {#if currentStep == 3}
           <Spinner />
         {:else if $store.playlists}
           <Text>
             {Object.keys($store.playlists).length} 💅🏽 vibes found
-            <!-- { Math.round((playlistCounter() / $store.songs.length) * 100)}% songs fit the vibes -->
           </Text>
         {/if}
       </Stack>
@@ -181,7 +134,6 @@
   </Grid.Container>
 
   <!-- Result container (error or success) -->
-  <!-- {#if !currentStep} -->
   <Spacer spacing="medium" />
   {#if error}
     <Stack>
@@ -206,7 +158,6 @@
       Browse playlists
     </Button>
   {/if}
-  <!-- {/if} -->
 </div>
 
 <style global>

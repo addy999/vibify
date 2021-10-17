@@ -2,11 +2,12 @@ import {
   getSongsUntil,
   postRequest,
   get_song_features,
-  filterSongsUntilDaysAgo,
   getTopTracks,
+  batchCreatePlaylists
 } from "./api";
 
 import { BASE_URL } from "./store";
+import { delayedCall } from "./utils";
 
 export enum Events {
   songsAdded, // step1
@@ -28,6 +29,7 @@ const baseSequence = ({ cb, token }: SequenceProps) =>
       return {
         feats: await get_song_features(
           token,
+          // @ts-ignore
           songs.map((s) => s.id),
           false
         ),
@@ -48,17 +50,19 @@ const baseSequence = ({ cb, token }: SequenceProps) =>
 
 const historySequence = ({ cb, token, songs }: SequenceProps) =>
   postRequest(BASE_URL + `find-avg-features`, songs)
-    // emulate "Stuff" happening since this step could be very fast
-    // .then(feats => new Promise((r) => setTimeout(() => r(feats), 1500)))
-    .then((feats) => {
-      cb(Events.featuresAdded, feats); // step2 done, step3 start
+    .then(feats => {
+      delayedCall(cb, Events.featuresAdded, feats, 2500); 
+      // step2 done, step3 start
       return postRequest(BASE_URL + `create-playlists`, {
-        songs: songs,
+        songs,
         centers: feats,
-      });
+      })
+      // return await batchCreatePlaylists(songs, feats);
     })
     .then((lists) => {
-      cb(Events.playlistsCreated, lists); // step3 done
+      delayedCall(cb, Events.playlistsCreated, lists, 3500);
+      //step3 done
+      console.log({ lists })
       return lists;
     });
 
@@ -75,6 +79,7 @@ const topSequence = ({ cb, token, songs }: SequenceProps) =>
         centers: feats,
       });
     })
+    // .then(feats => new Promise((r) => setTimeout(() => r(feats), 1500)))
     .then((lists) => {
       cb(Events.playlistsCreated, lists); // step3 done
       return lists;
