@@ -1,11 +1,10 @@
+import mixpanel from "mixpanel-browser";
 import {
   getSongsUntil,
   postRequest,
   get_song_features,
-  getTopTracks,
-  batchCreatePlaylists,
+  getTopTracks
 } from "./api";
-
 import { BASE_URL } from "./store";
 import { delayedCall } from "./utils";
 
@@ -84,9 +83,25 @@ const topSequence = ({ cb, token, songs }: SequenceProps) =>
       return lists;
     });
 
+const clusterSequence = ({ cb, token, songs }: SequenceProps) => {
+  delayedCall(cb, Events.featuresAdded, "blah", 2000);
+  return postRequest(BASE_URL + `create-playlists`, {songs})
+  .then(lists => {
+    delayedCall(cb, Events.playlistsCreated, lists, 2000); // step3 done
+    return lists;
+  });;
+}
+
 export const beepBoopBeep = async ({ cb, token }: SequenceProps) => {
   const songs = await baseSequence({ cb, token });
-  return songs.length > 2000
-    ? historySequence({ cb, token, songs })
-    : topSequence({ cb, token, songs });
+  if (songs.length > 2000) {
+    mixpanel.track("Algo@History");
+    return historySequence({ cb, token, songs });
+  } else if (songs.length > 1000) {
+    mixpanel.track("Algo@Top");
+    return topSequence({ cb, token, songs });
+  } else {
+    mixpanel.track("Algo@Cluster");
+    return clusterSequence({ cb, token, songs });
+  }
 };
