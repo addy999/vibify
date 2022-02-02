@@ -30,7 +30,7 @@
     return array;
   }
 
-  let max_songs = 15 + Math.floor(Math.random() * 20); // 15 - 35 songs
+  let max_songs = 35;
   const playlistTitle = `Mix-${
     Object.keys($store.playlists).findIndex((i) => i === playlist_id) + 1
   }`;
@@ -45,7 +45,7 @@
 
   const generateSongs = async (mounting = false) => {
     refrehing = true;
-    max_songs = 15 + Math.floor(Math.random() * 20);
+    // max_songs = 15 + Math.floor(Math.random() * 20);
     let tempSongsChosen = shuffleArray($store.playlists[playlist_id]).slice(
       0,
       max_songs
@@ -54,7 +54,7 @@
       $store.token,
       tempSongsChosen.map((s) => s.id)
     );
-    songsChosen = tempSongsChosen; // assing this var eperatley because it will queue the UI being re-rendered
+    songsChosen = tempSongsChosen; // assing this var seperatley because it will queue the UI being re-rendered
     !mounting && toast.push("New songs found");
     setTimeout(() => (refrehing = false), 500);
   };
@@ -126,6 +126,7 @@
           <Embed songId={song.id} info={trackInfos[index]} width="" />
         {/each}
       {/if}
+      <Spacer spacing="medium" />
     </Stack>
   </Scrollable>
 </Box>
