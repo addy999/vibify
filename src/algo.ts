@@ -61,7 +61,6 @@ const historySequence = ({ cb, token, songs }: SequenceProps) =>
     .then((lists) => {
       delayedCall(cb, Events.playlistsCreated, lists, 3500);
       //step3 done
-      console.log({ lists });
       return lists;
     });
 

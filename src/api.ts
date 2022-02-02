@@ -34,11 +34,15 @@ export const get_song_features = async (
     feats["audio_features"].map((_, j) => {
       if (_) {
         features[song_ids[i * 100 + j]] = [
+          _.acousticness,
           _.danceability,
+          _.loudness,
           _.energy,
           _.liveness,
           _.valence,
           _.tempo,
+          _.speechiness,
+          _.instrumentalness
         ];
       }
     });
