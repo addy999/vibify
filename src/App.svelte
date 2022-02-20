@@ -37,14 +37,9 @@
 <Transition>
   <Route path="/">
     <Stack class="center" padding="medium">
-      <!-- <img alt="A visual breakdown of playlists" src="./Group 1.png" /> -->
-      <!-- <Box> -->
-      <!-- <Heading as="h1" class="headline" variation="headline">Vibify</Heading> -->
       <img id="logo" src={logo} alt="Logo" />
       <Spacer spacing="large" />
-      <Heading is="h2"
-        >Find hidden playlists within your music using your listening history</Heading
-      >
+      <Heading is="h2">Find hidden playlists within your music using your listening history</Heading>
       <Spacer spacing="large" />
       <Button
         filled
@@ -122,15 +117,15 @@
     .padding {
       padding: 15px 25px !important;
     }
-    #logo {
+    /* #logo {
       margin-bottom: -15vh;
-    }
+    } */
   }
 
   h1,
   h2 {
-    /* font-size: 2em !important; */
-    font-weight: 100 !important;
+    /* font-size: 2rem !important; */
+    font-weight: 300 !important;
   }
 
   .headline {
