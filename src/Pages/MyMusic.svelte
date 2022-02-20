@@ -65,8 +65,9 @@
 </script>
 
 <div class="center padding">
-  <h1 class="analyze">Analyzing your music 🎵</h1>
+  <h1 class="analyze">Analyzing your music 🪗</h1>
 
+  <Spacer spacing="large" />
   <Spacer spacing="large" />
 
   <Grid.Container

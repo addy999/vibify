@@ -154,3 +154,14 @@ export const getTracksInfo = (token: string, ids: string[]): Promise<any> =>
         img: track.album.images[1].url,
       }))
     );
+
+export const batchGetTracksInfo = (token: string, ids: string[]): Promise<any[]> => 
+  Promise.all(
+    arrayChunks(ids, 25).map((chunk) =>
+      getTracksInfo(token, chunk)
+    ),
+  )
+  .then((respArray) =>
+    respArray.reduce((all, current) => [...all, ...current], [])
+  );
+  

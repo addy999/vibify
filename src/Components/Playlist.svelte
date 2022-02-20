@@ -4,13 +4,12 @@
     Spacer,
     Spinner,
     Stack,
-    Grid,
     Heading,
     Box,
     Scrollable,
   } from "@kahi-ui/framework";
   import { onMount } from "svelte";
-  import { getTracksInfo, postRequest } from "../api";
+  import { getTracksInfo, postRequest, batchGetTracksInfo } from "../api";
   import { toast } from "@zerodevx/svelte-toast";
   import mixpanel from "mixpanel-browser";
 
@@ -19,18 +18,6 @@
 
   export let playlist_id: string;
 
-  function shuffleArray(_array) {
-    let array = [..._array];
-    for (var i = array.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-    }
-    return array;
-  }
-
-  let max_songs = 35;
   const playlistTitle = `Mix-${
     Object.keys($store.playlists).findIndex((i) => i === playlist_id) + 1
   }`;
@@ -41,23 +28,6 @@
   let songsChosen = [];
   let trackInfos = [];
   let submitting;
-  let refrehing;
-
-  const generateSongs = async (mounting = false) => {
-    refrehing = true;
-    // max_songs = 15 + Math.floor(Math.random() * 20);
-    let tempSongsChosen = shuffleArray($store.playlists[playlist_id]).slice(
-      0,
-      max_songs
-    );
-    trackInfos = await getTracksInfo(
-      $store.token,
-      tempSongsChosen.map((s) => s.id)
-    );
-    songsChosen = tempSongsChosen; // assing this var seperatley because it will queue the UI being re-rendered
-    !mounting && toast.push("New songs found");
-    setTimeout(() => (refrehing = false), 500);
-  };
 
   const submitPlaylist = () => {
     submitting = "loading";
@@ -72,7 +42,14 @@
     });
   };
 
-  onMount(() => generateSongs(true));
+  onMount(async () => {
+    songsChosen = $store.playlists[playlist_id];
+    trackInfos = await batchGetTracksInfo(
+      $store.token,
+      songsChosen.map((s) => s.id)
+    );
+    console.log({trackInfos})
+  });
 </script>
 
 <Box
@@ -93,16 +70,6 @@
   </Stack>
   <Spacer spacing="medium" />
   <Stack orientation="horizontal">
-    {#if songsChosen.length >= max_songs}
-      <Button class="padding" palette="auto" on:click={() => generateSongs()}>
-        {#if refrehing}
-          <Spinner size="medium" />
-        {:else}
-          Refresh
-          <span class="material-icons"> refresh </span>
-        {/if}
-      </Button>
-    {/if}
     <Button
       class="padding"
       palette={submitting === "check" ? "affirmative" : "accent"}
